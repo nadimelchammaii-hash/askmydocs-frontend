@@ -1,21 +1,17 @@
-import UnoCSS from 'unocss/vite';
+/// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url'
 import Vue from '@vitejs/plugin-vue'
-import Fonts from 'unplugin-fonts/vite'
 import { defineConfig } from 'vite'
+import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
 export default defineConfig({
-  plugins: [Vue(), Fonts({
-    fontsource: {
-      families: [
-        {
-          name: 'Roboto',
-          weights: [100, 300, 400, 500, 700, 900],
-          styles: ['normal', 'italic'],
-        },
-      ],
-    },
-  }), UnoCSS()],
+  plugins: [
+    Vue({
+      template: { transformAssetUrls },
+    }),
+    // Imports only the Vuetify components that are actually used (smaller bundle).
+    Vuetify({ autoImport: true }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
@@ -24,5 +20,15 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // Fail instead of silently moving to 3001: the API only accepts this origin
+    // (CORS + Sanctum stateful domain), so another port would break authentication.
+    strictPort: true,
+  },
+  test: {
+    environment: 'jsdom',
+    // Fixed values so tests never depend on a developer's local .env files.
+    env: {
+      VITE_API_BASE_URL: 'https://api.test',
+    },
   },
 })

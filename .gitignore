@@ -14,6 +14,11 @@ dist-ssr
 coverage
 *.local
 
+# Environment files (API URLs, future secrets); only the template is committed
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

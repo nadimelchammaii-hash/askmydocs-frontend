@@ -1,7 +1,7 @@
 /**
  * main.ts
  *
- * Bootstraps Vuetify and other plugins then mounts the App`
+ * Bootstraps Vuetify and other plugins then mounts the App
  */
 
 // Composables
@@ -12,10 +12,6 @@ import { registerPlugins } from '@/plugins'
 
 // Components
 import App from './App.vue'
-
-// Styles
-import 'virtual:uno.css'
-import 'unfonts.css'
 
 const app = createApp(App)
 

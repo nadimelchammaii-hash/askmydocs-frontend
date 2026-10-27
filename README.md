@@ -1,79 +1,83 @@
-# askmydocs-frontend
+# AskMyDocs — Frontend
 
-Scaffolded with Vuetify CLI.
+Vue single-page application for AskMyDocs: upload PDF documents and ask questions about them, with answers cited by page.
 
-## ❗️ Documentation
+The API is a separate application in its own repository: **askmydocs-backend** (Laravel). Its contract is documented in `askmydocs-backend/docs/api.md`.
 
-- Primary docs: https://0.vuetifyjs.com/
-- Getting started guide: https://0.vuetifyjs.com/guide
-- Community support: https://community.vuetifyjs.com/
-- Issue tracker: https://issues.vuetifyjs.com/
+> Status: Phase 1 — non-visual foundation (API client, auth store, route guards). Screens are implemented from the approved Google Stitch design in Phase 6.
 
-## 🧱 Stack
+## Stack
 
-- Framework: Vue 3 + Vite
-- UI Library: Vuetify0
-- Language: TypeScript
-- Package manager: npm
+| Concern | Choice |
+|---|---|
+| Framework | Vue 3 + TypeScript + Vite |
+| UI | Vuetify 4 |
+| State | Pinia |
+| Routing | Vue Router |
+| HTTP | axios |
+| Tests | Vitest, @vue/test-utils, jsdom |
+| Lint | ESLint (`eslint-config-vuetify`) |
 
-## 🧭 Start Here
+## Local development (Windows)
 
-- Main entry: `src/main.ts`
-- Main app component: `src/App.vue`
-- Main styles: `src/styles/`
-- Plugin setup: `src/plugins/`
+Runs natively with Node.js (v22+). The backend API must be running on `http://localhost:8000` (see the backend README).
 
-## 📁 Project Structure
-
-- `src/main.ts` — application entry point
-- `src/App.vue` — root component
-- `src/components/` — reusable Vue components
-- `src/plugins/` — plugin registration and setup
-- `src/styles/` — global styles and theme settings
-- `public/` — static public files
-
-## ✨ Enabled Features
-
-- ESLint
-- Vue Router
-- UnoCSS
-
-## 💿 Install
-
-Use your selected package manager (npm) to install dependencies:
-
-```bash
+```powershell
 npm install
+copy .env.example .env.local      # then adjust if needed
+npm run dev                       # http://localhost:3000
 ```
 
-## 🚀 Quick Start
+### Port
 
-```bash
-npm install
-npm run dev
+The dev server uses port **3000** with `strictPort`: if 3000 is taken, Vite stops with an error instead of switching to another port. This is deliberate — the API only accepts requests from `http://localhost:3000` (CORS and Sanctum), so a different port would break login.
+
+Check the port before starting:
+
+```powershell
+Get-NetTCPConnection -State Listen -LocalPort 3000 -ErrorAction SilentlyContinue   # no output = free
 ```
 
-## 🏗️ Build
+To use another port, change `server.port` in `vite.config.mts` **and** `FRONTEND_URL` / `SANCTUM_STATEFUL_DOMAINS` in the backend `.env`.
 
-```bash
-npm run build
+Always open the app at `http://localhost:3000` (not `127.0.0.1`): the session cookie is only shared when the SPA and API use the same host name.
+
+### Environment
+
+| Variable | Example | Purpose |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:8000` | Backend API base URL |
+
+`.env.local` is not committed. Everything prefixed with `VITE_` is bundled into the public JavaScript, so never put secrets in these files.
+
+## Scripts
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Development server |
+| `npm test` | Run unit tests once (`npm run test:watch` to watch) |
+| `npm run type-check` | TypeScript check (app, tests, config) |
+| `npm run lint` / `npm run lint:fix` | ESLint |
+| `npm run build` | Type-check and production build to `dist/` |
+
+## Structure
+
+```
+src/
+  api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts (endpoints), errors.ts (ApiError)
+  types/        api.ts — types mirroring the backend API contract
+  stores/       auth.ts — current user (Pinia)
+  router/       index.ts, guards.ts — route protection (meta.requiresAuth / meta.guestOnly)
+  plugins/      Vuetify, Pinia, router registration
 ```
 
-## 🧪 Available Scripts
+### Authentication flow
 
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
-- `npm run build-only`
-- `npm run type-check`
-- `npm run lint`
-- `npm run lint:fix`
+The API uses Laravel Sanctum **session cookies** (HttpOnly; JavaScript never sees them). The client:
 
-## 💪 Support Vuetify Development
+1. requests `GET /sanctum/csrf-cookie` before login/register,
+2. sends every request with credentials and the `X-XSRF-TOKEN` header (configured in `src/api/http.ts`),
+3. on `419` fetches a new CSRF cookie and retries once,
+4. on `401` clears the local user (session expired).
 
-This project uses Vuetify0 - an MIT licensed Open Source project. We are glad to welcome contributors and any support for ongoing development:
-
-- Contribute to Vuetify and ecosystem projects: https://github.com/vuetifyjs
-- Request enterprise support: https://support.vuetifyjs.com/
-- Sponsor on GitHub: https://github.com/sponsors/vuetifyjs
-- Support on Open Collective: https://opencollective.com/vuetify
+On startup, the route guard asks the API who is logged in (`GET /api/v1/user`) before entering protected routes.
