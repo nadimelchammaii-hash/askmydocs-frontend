@@ -26,6 +26,22 @@ export function onUnauthenticated (handler: (() => void) | null) {
   unauthenticatedHandler = handler
 }
 
+/**
+ * Requests made with responseType 'blob' (e.g. the PDF file) also receive their
+ * error body as a Blob. Decode JSON error bodies so they carry the usual `code`.
+ */
+async function decodeBlobErrorBody (error: { response?: { data?: unknown } } | undefined) {
+  const data = error?.response?.data
+  if (!(data instanceof Blob) || !data.type.includes('json')) {
+    return
+  }
+  try {
+    error!.response!.data = JSON.parse(await data.text())
+  } catch {
+    // Not valid JSON: keep the Blob; toApiError falls back to a generic error.
+  }
+}
+
 http.interceptors.response.use(
   response => response,
   async error => {
@@ -39,6 +55,7 @@ http.interceptors.response.use(
       return http.request(config)
     }
 
+    await decodeBlobErrorBody(error)
     const apiError = toApiError(error)
 
     if (apiError.status === 401) {
