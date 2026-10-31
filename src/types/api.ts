@@ -73,10 +73,10 @@ export interface Paginated<T> {
 }
 
 /**
- * Processing lifecycle: queued -> extracting -> ready, or -> failed.
+ * Processing lifecycle: queued -> extracting -> embedding -> ready, or -> failed.
  * Later phases may add steps; use `is_finished` to decide whether to keep polling.
  */
-export type DocumentStatus = 'queued' | 'extracting' | 'ready' | 'failed'
+export type DocumentStatus = 'queued' | 'extracting' | 'embedding' | 'ready' | 'failed'
 
 /** Known `error_code` values of failed documents (others may be added; treat unknown ones generically). */
 export type DocumentErrorCode
@@ -87,6 +87,7 @@ export type DocumentErrorCode
     | 'extraction_timeout'
     | 'extraction_failed'
     | 'file_missing'
+    | 'embedding_failed'
 
 export interface Document {
   /** ULID (lowercase) */
