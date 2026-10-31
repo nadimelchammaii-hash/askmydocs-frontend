@@ -68,9 +68,18 @@ src/
   composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed)
   types/        api.ts — types mirroring the backend API contract
   stores/       auth.ts — current user (Pinia)
-  router/       index.ts, guards.ts — route protection (meta.requiresAuth / meta.guestOnly)
-  plugins/      Vuetify, Pinia, router registration
+  router/       index.ts (routes, lazy-loaded pages), guards.ts — route protection (meta.requiresAuth / meta.guestOnly)
+  layouts/      AppLayout (sidebar + top bar on desktop, top bar + bottom navigation on mobile), AuthLayout (login, register)
+  views/        one component per page
+  styles/       main.css — fonts, type scale and spacing tokens from the Stitch design
+  plugins/      Vuetify (theme colors and Material Symbols icons from the Stitch design), Pinia, router registration
 ```
+
+### Design
+
+The UI follows the Google Stitch project "AskMyDocs AI PDF Assistant". Its tokens are implemented as a Vuetify theme (Material 3 color roles, e.g. `bg-surface-container-low`) plus CSS classes named like the Stitch tokens (`text-headline-md`, `text-label-code`, …). Fonts (Geist, JetBrains Mono) and icons (Material Symbols Outlined) are self-hosted npm packages, so the app makes no requests to font CDNs.
+
+Mockup elements the API does not support (SSO, 2FA, workspaces, OCR, quotas, notifications, export, compliance badges) are intentionally left out, so the UI only shows features that exist.
 
 ### Authentication flow
 
@@ -79,6 +88,6 @@ The API uses Laravel Sanctum **session cookies** (HttpOnly; JavaScript never see
 1. requests `GET /sanctum/csrf-cookie` before login/register,
 2. sends every request with credentials and the `X-XSRF-TOKEN` header (configured in `src/api/http.ts`),
 3. on `419` fetches a new CSRF cookie and retries once,
-4. on `401` clears the local user (session expired).
+4. on `401` clears the local user (session expired) and, on a protected page, goes to the login page.
 
 On startup, the route guard asks the API who is logged in (`GET /api/v1/user`) before entering protected routes.

@@ -6,12 +6,14 @@ declare module 'vue-router' {
     requiresAuth?: boolean
     /** Only for guests (e.g. login, register). */
     guestOnly?: boolean
+    /** Shown in the browser tab and the top bar. */
+    title?: string
   }
 }
 
-/** Route names the guard redirects to. The routes themselves are added in Phase 6. */
+/** Route names the guard redirects to (defined in router/index.ts). */
 export const LOGIN_ROUTE = 'login'
-export const HOME_ROUTE = 'documents'
+export const HOME_ROUTE = 'dashboard'
 
 interface AuthState {
   readonly isAuthenticated: boolean

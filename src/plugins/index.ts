@@ -11,6 +11,7 @@ import type { App } from 'vue'
 import { createPinia } from 'pinia'
 import { onUnauthenticated } from '@/api/http'
 import router from '@/router'
+import { LOGIN_ROUTE } from '@/router/guards'
 import { useAuthStore } from '@/stores/auth'
 import vuetify from './vuetify'
 
@@ -20,6 +21,12 @@ export function registerPlugins (app: App) {
   app.use(createPinia())
   app.use(router)
 
-  // Session expired or logged out elsewhere: forget the user. (Redirect to login is added with the routes in Phase 6.)
-  onUnauthenticated(() => useAuthStore().clear())
+  // Session expired or logged out elsewhere: forget the user and, on a protected page, go to login.
+  onUnauthenticated(() => {
+    useAuthStore().clear()
+    const current = router.currentRoute.value
+    if (current.meta.requiresAuth) {
+      void router.push({ name: LOGIN_ROUTE, query: { redirect: current.fullPath } })
+    }
+  })
 }

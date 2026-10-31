@@ -30,5 +30,7 @@ export default defineConfig({
     env: {
       VITE_API_BASE_URL: 'https://api.test',
     },
+    // Vuetify components import their own CSS; let Vite process it in component tests.
+    server: { deps: { inline: ['vuetify'] } },
   },
 })
