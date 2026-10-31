@@ -34,7 +34,7 @@ describe('documentsApi', () => {
     const page = { data: [document], links: {}, meta: { current_page: 2, last_page: 2, per_page: 20, total: 21, from: 21, to: 21 } }
     const adapter = fakeServer(() => ({ status: 200, data: page }))
 
-    await expect(documentsApi.list(2)).resolves.toEqual(page)
+    await expect(documentsApi.list({ page: 2 })).resolves.toEqual(page)
     expect(adapter.mock.calls[0]![0].params).toEqual({ page: 2 })
   })
 
@@ -155,5 +155,27 @@ describe('documentsApi upload progress', () => {
     await documentsApi.upload(pdfFile(), { onProgress })
 
     expect(onProgress).not.toHaveBeenCalled()
+  })
+})
+
+describe('documentsApi management', () => {
+  it('sends only the filters that are set', async () => {
+    const adapter = fakeServer(() => ({ status: 200, data: { data: [], links: {}, meta: {} } }))
+
+    await documentsApi.list({ status: 'ready', search: 'report' })
+    await documentsApi.list({ page: 1, search: '' })
+
+    expect(adapter.mock.calls[0]![0].params).toEqual({ status: 'ready', search: 'report' })
+    expect(adapter.mock.calls[1]![0].params).toEqual({ page: 1 })
+  })
+
+  it('renames a document', async () => {
+    const adapter = fakeServer(() => ({ status: 200, data: { data: { ...document, title: 'New' } } }))
+
+    await expect(documentsApi.rename(document.id, 'New')).resolves.toMatchObject({ title: 'New' })
+
+    const [config] = adapter.mock.calls[0]!
+    expect(`${config.method?.toUpperCase()} ${config.url}`).toBe(`PATCH /api/v1/documents/${document.id}`)
+    expect(JSON.parse(config.data)).toEqual({ title: 'New' })
   })
 })

@@ -64,8 +64,8 @@ Always open the app at `http://localhost:3000` (not `127.0.0.1`): the session co
 
 ```
 src/
-  api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts and documents.ts (endpoints), errors.ts (ApiError)
-  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed)
+  api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts, documents.ts and conversations.ts (endpoints), errors.ts (ApiError)
+  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed)
   types/        api.ts — types mirroring the backend API contract
   stores/       auth.ts — current user (Pinia)
   router/       index.ts, guards.ts — route protection (meta.requiresAuth / meta.guestOnly)

@@ -1,5 +1,13 @@
-import type { Document, DocumentPage, Paginated, Resource } from '@/types/api'
+import type { Document, DocumentPage, DocumentStatus, Paginated, Resource } from '@/types/api'
 import { http } from './http'
+import { withoutEmpty } from './params'
+
+export interface DocumentListParams {
+  page?: number
+  status?: DocumentStatus
+  /** Case-insensitive search in titles. */
+  search?: string
+}
 
 export interface UploadOptions {
   /** Defaults to the filename without `.pdf` (decided by the API). */
@@ -21,10 +29,15 @@ const path = (id: string) => `${base}/${encodeURIComponent(id)}`
 
 /** Endpoints from docs/api.md (documents). */
 export const documentsApi = {
-  /** The user's documents, newest first, 20 per page. */
-  async list (page = 1): Promise<Paginated<Document>> {
-    const { data } = await http.get<Paginated<Document>>(base, { params: { page } })
+  /** The user's documents, newest first, 20 per page, optionally filtered. */
+  async list (params: DocumentListParams = {}): Promise<Paginated<Document>> {
+    const { data } = await http.get<Paginated<Document>>(base, { params: withoutEmpty(params) })
     return data
+  },
+
+  async rename (id: string, title: string): Promise<Document> {
+    const { data } = await http.patch<Resource<Document>>(path(id), { title })
+    return data.data
   },
 
   /**
