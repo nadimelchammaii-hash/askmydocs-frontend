@@ -19,10 +19,13 @@ export default defineConfig({
     extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
   },
   server: {
-    port: 3000,
-    // Fail instead of silently moving to 3001: the API only accepts this origin
+    port: 5173,
+    // Fail instead of silently moving to 5174: the API only accepts this origin
     // (CORS + Sanctum stateful domain), so another port would break authentication.
     strictPort: true,
+    // In Docker on Windows, file-change events from the mounted source folder do not
+    // reach the container, so the dev server polls instead (set in compose.yaml).
+    watch: process.env.VITE_DEV_POLLING === 'true' ? { usePolling: true, interval: 300 } : undefined,
   },
   test: {
     environment: 'jsdom',

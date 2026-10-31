@@ -18,29 +18,41 @@ The API is a separate application in its own repository: **askmydocs-backend** (
 | Tests | Vitest, @vue/test-utils, jsdom |
 | Lint | ESLint (`eslint-config-vuetify`) |
 
-## Local development (Windows)
+## Running with Docker (recommended)
+
+The whole stack (database, API, workers and this SPA's dev server) is started from the backend repository, which must be next to this one:
+
+```powershell
+cd ..skmydocs-backend
+docker compose up -d --build       # SPA at http://localhost:5173
+docker compose exec frontend npm test
+```
+
+The SPA container ([`docker/Dockerfile.dev`](docker/Dockerfile.dev)) mounts this folder, so edits reload the page as usual. Its `node_modules` is a Docker volume with Linux packages, separate from the Windows `node_modules/` folder, and is installed automatically when `package-lock.json` changes. File changes are detected by polling (`VITE_DEV_POLLING`), because change events from Windows folders do not reach containers.
+
+## Alternative: local development (Windows)
 
 Runs natively with Node.js (v22+). The backend API must be running on `http://localhost:8000` (see the backend README).
 
 ```powershell
 npm install
 copy .env.example .env.local      # then adjust if needed
-npm run dev                       # http://localhost:3000
+npm run dev                       # http://localhost:5173
 ```
 
 ### Port
 
-The dev server uses port **3000** with `strictPort`: if 3000 is taken, Vite stops with an error instead of switching to another port. This is deliberate — the API only accepts requests from `http://localhost:3000` (CORS and Sanctum), so a different port would break login.
+The dev server uses port **5173** (Vite's default; `3000` fell inside a Windows-reserved port range) with `strictPort`: if 5173 is taken, Vite stops with an error instead of switching to another port. This is deliberate — the API only accepts requests from `http://localhost:5173` (CORS and Sanctum), so a different port would break login.
 
 Check the port before starting:
 
 ```powershell
-Get-NetTCPConnection -State Listen -LocalPort 3000 -ErrorAction SilentlyContinue   # no output = free
+Get-NetTCPConnection -State Listen -LocalPort 5173 -ErrorAction SilentlyContinue   # no output = free
 ```
 
 To use another port, change `server.port` in `vite.config.mts` **and** `FRONTEND_URL` / `SANCTUM_STATEFUL_DOMAINS` in the backend `.env`.
 
-Always open the app at `http://localhost:3000` (not `127.0.0.1`): the session cookie is only shared when the SPA and API use the same host name.
+Always open the app at `http://localhost:5173` (not `127.0.0.1`): the session cookie is only shared when the SPA and API use the same host name.
 
 ### Environment
 

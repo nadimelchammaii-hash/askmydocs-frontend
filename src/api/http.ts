@@ -4,7 +4,7 @@ import { toApiError } from './errors'
 /**
  * Axios instance for the AskMyDocs API (Laravel Sanctum, SPA cookie mode).
  *
- * - withCredentials: send the session cookie to the API (a different origin: :8000 vs :3000).
+ * - withCredentials: send the session cookie to the API (a different origin: :8000 vs :5173).
  * - withXSRFToken: copy the XSRF-TOKEN cookie into the X-XSRF-TOKEN header. Axios only does
  *   this automatically for same-origin requests, so it must be forced here.
  */
