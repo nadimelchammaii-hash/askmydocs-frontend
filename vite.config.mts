@@ -1,11 +1,35 @@
 /// <reference types="vitest/config" />
 import { fileURLToPath, URL } from 'node:url'
 import Vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+
+/**
+ * The API trusts only http://localhost:5173 (CORS, Sanctum) and the session cookie is
+ * shared only between same-host pages, so a page opened on 127.0.0.1 cannot log in.
+ * In development, send 127.0.0.1 visitors to the same page on localhost.
+ */
+function redirectLoopbackIpToLocalhost (): Plugin {
+  return {
+    name: 'askmydocs:redirect-127-to-localhost',
+    apply: 'serve',
+    configureServer (server) {
+      server.middlewares.use((req, res, next) => {
+        const host = req.headers.host ?? ''
+        if (!host.startsWith('127.0.0.1')) {
+          return next()
+        }
+        res.statusCode = 307
+        res.setHeader('Location', `http://${host.replace('127.0.0.1', 'localhost')}${req.url ?? '/'}`)
+        res.end()
+      })
+    },
+  }
+}
 
 export default defineConfig({
   plugins: [
+    redirectLoopbackIpToLocalhost(),
     Vue({
       template: { transformAssetUrls },
     }),
@@ -35,5 +59,6 @@ export default defineConfig({
     },
     // Vuetify components import their own CSS; let Vite process it in component tests.
     server: { deps: { inline: ['vuetify'] } },
+    setupFiles: ['src/__tests__/setup.ts'],
   },
 })

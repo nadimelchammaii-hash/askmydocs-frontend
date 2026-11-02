@@ -52,7 +52,7 @@ Get-NetTCPConnection -State Listen -LocalPort 5173 -ErrorAction SilentlyContinue
 
 To use another port, change `server.port` in `vite.config.mts` **and** `FRONTEND_URL` / `SANCTUM_STATEFUL_DOMAINS` in the backend `.env`.
 
-Always open the app at `http://localhost:5173` (not `127.0.0.1`): the session cookie is only shared when the SPA and API use the same host name.
+Use `http://localhost:5173`, not `127.0.0.1`: the API only accepts the `localhost` origin, and the session cookie is only shared when the SPA and API use the same host name. The dev server redirects `127.0.0.1:5173` to `localhost:5173` automatically.
 
 ### Environment
 
@@ -77,12 +77,15 @@ Always open the app at `http://localhost:5173` (not `127.0.0.1`): the session co
 ```
 src/
   api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts, documents.ts and conversations.ts (endpoints), errors.ts (ApiError)
-  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed)
+  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed), useApiForm (submit state, per-field 422 messages)
+  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist)
+  utils/        password.ts — the API's password rules, for live feedback
   types/        api.ts — types mirroring the backend API contract
   stores/       auth.ts — current user (Pinia)
   router/       index.ts (routes, lazy-loaded pages), guards.ts — route protection (meta.requiresAuth / meta.guestOnly)
   layouts/      AppLayout (sidebar + top bar on desktop, top bar + bottom navigation on mobile), AuthLayout (login, register)
-  views/        one component per page
+  views/        one component per page (auth/: login, register, forgot and reset password)
+  __tests__/    test setup (jsdom stubs for Vuetify) and mountPage() helper for page tests
   styles/       main.css — fonts, type scale and spacing tokens from the Stitch design
   plugins/      Vuetify (theme colors and Material Symbols icons from the Stitch design), Pinia, router registration
 ```

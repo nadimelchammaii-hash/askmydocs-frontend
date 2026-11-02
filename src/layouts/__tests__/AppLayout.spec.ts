@@ -1,9 +1,10 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { VApp } from 'vuetify/components'
+import { accessibleText } from '@/__tests__/mountPage'
 import { authApi } from '@/api/auth'
 import vuetify from '@/plugins/vuetify'
 import { routes } from '@/router'
@@ -12,30 +13,10 @@ import AppLayout from '../AppLayout.vue'
 
 vi.mock('@/api/auth', () => ({ authApi: { logout: vi.fn() } }))
 
-beforeAll(() => {
-  // Vuetify's layout measures elements; jsdom has no ResizeObserver.
-  globalThis.ResizeObserver ??= class {
-    observe () {}
-    unobserve () {}
-    disconnect () {}
-  }
-  // Vuetify menus position themselves with visualViewport; jsdom has none.
-  globalThis.visualViewport ??= Object.assign(new EventTarget(), { width: 1280, height: 800, offsetLeft: 0, offsetTop: 0, scale: 1 }) as unknown as VisualViewport
-})
-
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.resetAllMocks()
 })
-
-/** Text a screen reader announces: icon ligatures are aria-hidden. */
-function accessibleText (element: Element): string {
-  const copy = element.cloneNode(true) as Element
-  for (const hidden of copy.querySelectorAll('[aria-hidden="true"]')) {
-    hidden.remove()
-  }
-  return copy.textContent?.trim() ?? ''
-}
 
 async function mountLayout (path = '/') {
   const auth = useAuthStore()
