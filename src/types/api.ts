@@ -168,6 +168,27 @@ export interface Conversation {
   updated_at: string
 }
 
+/** GET /api/v1/stats: dashboard numbers of the current user. */
+export interface Stats {
+  documents: {
+    total: number
+    ready: number
+    /** Not finished yet (queued, extracting, embedding, …). */
+    processing: number
+    failed: number
+  }
+  /** Pages of ready documents. */
+  pages_indexed: number
+  conversations: number
+  questions_today: {
+    used: number
+    limit: number
+    remaining: number
+    /** ISO 8601: next midnight UTC. */
+    resets_at: string
+  }
+}
+
 export interface QuestionAndAnswer {
   question: Message
   /** Pending: poll it until is_finished. */
