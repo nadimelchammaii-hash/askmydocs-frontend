@@ -77,9 +77,9 @@ Use `http://localhost:5173`, not `127.0.0.1`: the API only accepts the `localhos
 ```
 src/
   api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts, documents.ts and conversations.ts (endpoints), errors.ts (ApiError)
-  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed), useApiForm (submit state, per-field 422 messages)
-  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist)
-  utils/        password.ts — the API's password rules, for live feedback
+  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed), useApiForm (submit state, per-field 422 messages), useDocumentLibrary (library list driven by URL filters; refreshes documents still processing)
+  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist); documents/ (status chip, upload, rename and delete dialogs, actions menu)
+  utils/        password.ts (the API's password rules), documentStatus.ts (status labels, which failures can be retried), format.ts (sizes, dates), download.ts
   types/        api.ts — types mirroring the backend API contract
   stores/       auth.ts — current user (Pinia)
   router/       index.ts (routes, lazy-loaded pages), guards.ts — route protection (meta.requiresAuth / meta.guestOnly)
