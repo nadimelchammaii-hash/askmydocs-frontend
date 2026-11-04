@@ -18,6 +18,7 @@ const FAILURE_LABELS: Record<string, string> = {
   extraction_failed: 'Processing failed',
   file_missing: 'File missing',
   embedding_failed: 'Indexing failed',
+  processing_stalled: 'Did not finish',
 }
 
 /**

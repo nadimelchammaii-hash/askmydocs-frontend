@@ -88,6 +88,7 @@ export type DocumentErrorCode
     | 'extraction_failed'
     | 'file_missing'
     | 'embedding_failed'
+    | 'processing_stalled'
 
 export interface Document {
   /** ULID (lowercase) */
