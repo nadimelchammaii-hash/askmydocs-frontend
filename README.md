@@ -4,7 +4,7 @@ Vue single-page application for AskMyDocs: upload PDF documents and ask question
 
 The API is a separate application in its own repository: **askmydocs-backend** (Laravel). Its contract is documented in `askmydocs-backend/docs/api.md`.
 
-> Status: Phase 1 — non-visual foundation (API client, auth store, route guards). Screens are implemented from the approved Google Stitch design in Phase 6.
+> Status: all screens implemented (Phase 6) from the approved Google Stitch design: sign in and registration, password reset, dashboard, document library, chat with cited answers and PDF viewer, conversations and account settings.
 
 ## Stack
 
@@ -79,7 +79,7 @@ Use `http://localhost:5173`, not `127.0.0.1`: the API only accepts the `localhos
 src/
   api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts, documents.ts, conversations.ts and stats.ts (endpoints), errors.ts (ApiError)
   composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed), useApiForm (submit state, per-field 422 messages), useDocumentLibrary (library list driven by URL filters; refreshes documents still processing), useConversation (chat: loads, asks, follows pending answers)
-  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist); documents/ (status chip, upload, rename and delete dialogs, actions menu); chat/ (message with citation pills and sources, question box, PdfViewer)
+  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist), RenameDialog and ConfirmDialog (reusable dialogs); documents/ (status chip, upload, rename and delete dialogs, actions menu); chat/ (message with citation pills and sources, question box, PdfViewer)
   utils/        password.ts (the API's password rules), documentStatus.ts (status labels, which failures can be retried), format.ts (sizes, dates), download.ts, citations.ts (groups citations, splits answers into text and citation pills), quoteMatch.ts (finds a cited quote in the PDF text to highlight it)
   types/        api.ts — types mirroring the backend API contract
   stores/       auth.ts — current user (Pinia)

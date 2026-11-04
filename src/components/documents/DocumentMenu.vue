@@ -20,6 +20,14 @@
     <v-list class="bg-surface-container-lowest" density="comfortable" min-width="220" rounded="lg">
       <v-list-item prepend-icon="drive_file_rename_outline" title="Rename" @click="emit('rename')" />
       <v-list-item prepend-icon="download" title="Download PDF" @click="emit('download')" />
+
+      <v-list-item
+        v-if="(document.conversations_count ?? 0) > 0"
+        prepend-icon="forum"
+        :title="`Conversations (${document.conversations_count})`"
+        :to="{ name: 'conversations', query: { document: document.id } }"
+      />
+
       <v-divider class="my-1" />
       <v-list-item base-color="error" prepend-icon="delete" title="Delete" @click="emit('delete')" />
     </v-list>
