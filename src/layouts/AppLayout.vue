@@ -203,7 +203,9 @@
   </v-app-bar>
 
   <v-main class="bg-surface">
-    <router-view />
+    <div :class="route.meta.fullBleed ? 'page page--full' : 'page pa-4 pa-md-8'">
+      <router-view />
+    </div>
   </v-main>
 
   <!-- Mobile bottom navigation -->
@@ -238,6 +240,12 @@
 </template>
 
 <style scoped>
+/* Full-bleed pages (chat) fill exactly the space between the bars. */
+.page--full {
+  height: calc(100dvh - var(--v-layout-top, 64px) - var(--v-layout-bottom, 0px));
+  overflow: hidden;
+}
+
 .brand {
   text-decoration: none;
 }

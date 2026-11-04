@@ -19,9 +19,9 @@ export const routes: RouteRecordRaw[] = [
     children: [
       { path: '', name: HOME_ROUTE, component: () => import('@/views/DashboardView.vue'), meta: { title: 'Dashboard' } },
       { path: 'documents', name: 'documents', component: () => import('@/views/DocumentLibraryView.vue'), meta: { title: 'Document Library' } },
-      { path: 'documents/:documentId/chat', name: 'document-chat', component: () => import('@/views/ChatView.vue'), meta: { title: 'Document Chat' } },
+      { path: 'documents/:documentId/chat', name: 'document-chat', component: () => import('@/views/ChatView.vue'), meta: { title: 'Document Chat', fullBleed: true } },
       { path: 'conversations', name: 'conversations', component: () => import('@/views/ConversationsView.vue'), meta: { title: 'Conversations' } },
-      { path: 'conversations/:conversationId', name: 'conversation', component: () => import('@/views/ChatView.vue'), meta: { title: 'Document Chat' } },
+      { path: 'conversations/:conversationId', name: 'conversation', component: () => import('@/views/ChatView.vue'), meta: { title: 'Document Chat', fullBleed: true } },
       { path: 'settings', name: 'settings', component: () => import('@/views/SettingsView.vue'), meta: { title: 'Settings' } },
     ],
   },

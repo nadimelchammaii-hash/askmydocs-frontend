@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="pa-6">
+  <div>
     <h1 class="text-headline-lg text-on-surface">Settings</h1>
   </div>
 </template>

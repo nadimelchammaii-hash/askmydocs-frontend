@@ -8,6 +8,8 @@ declare module 'vue-router' {
     guestOnly?: boolean
     /** Shown in the browser tab and the top bar. */
     title?: string
+    /** The page fills the content area without the layout's padding (chat). */
+    fullBleed?: boolean
   }
 }
 

@@ -18,3 +18,7 @@ globalThis.visualViewport ??= Object.assign(new EventTarget(), {
   offsetTop: 0,
   scale: 1,
 }) as unknown as VisualViewport
+
+// Scrolling is not implemented by jsdom (chat auto-scroll, PDF highlight).
+Element.prototype.scrollTo ??= function scrollTo () {}
+Element.prototype.scrollIntoView ??= function scrollIntoView () {}

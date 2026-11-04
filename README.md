@@ -15,6 +15,7 @@ The API is a separate application in its own repository: **askmydocs-backend** (
 | State | Pinia |
 | Routing | Vue Router |
 | HTTP | axios |
+| PDF viewer | pdf.js (`pdfjs-dist`, loaded only when a PDF is opened) |
 | Tests | Vitest, @vue/test-utils, jsdom |
 | Lint | ESLint (`eslint-config-vuetify`) |
 
@@ -77,9 +78,9 @@ Use `http://localhost:5173`, not `127.0.0.1`: the API only accepts the `localhos
 ```
 src/
   api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts, documents.ts, conversations.ts and stats.ts (endpoints), errors.ts (ApiError)
-  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed), useApiForm (submit state, per-field 422 messages), useDocumentLibrary (library list driven by URL filters; refreshes documents still processing)
-  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist); documents/ (status chip, upload, rename and delete dialogs, actions menu)
-  utils/        password.ts (the API's password rules), documentStatus.ts (status labels, which failures can be retried), format.ts (sizes, dates), download.ts
+  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed), useApiForm (submit state, per-field 422 messages), useDocumentLibrary (library list driven by URL filters; refreshes documents still processing), useConversation (chat: loads, asks, follows pending answers)
+  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist); documents/ (status chip, upload, rename and delete dialogs, actions menu); chat/ (message with citation pills and sources, question box, PdfViewer)
+  utils/        password.ts (the API's password rules), documentStatus.ts (status labels, which failures can be retried), format.ts (sizes, dates), download.ts, citations.ts (groups citations, splits answers into text and citation pills), quoteMatch.ts (finds a cited quote in the PDF text to highlight it)
   types/        api.ts — types mirroring the backend API contract
   stores/       auth.ts — current user (Pinia)
   router/       index.ts (routes, lazy-loaded pages), guards.ts — route protection (meta.requiresAuth / meta.guestOnly)
@@ -95,6 +96,12 @@ src/
 The UI follows the Google Stitch project "AskMyDocs AI PDF Assistant". Its tokens are implemented as a Vuetify theme (Material 3 color roles, e.g. `bg-surface-container-low`) plus CSS classes named like the Stitch tokens (`text-headline-md`, `text-label-code`, …). Fonts (Geist, JetBrains Mono) and icons (Material Symbols Outlined) are self-hosted npm packages, so the app makes no requests to font CDNs.
 
 Mockup elements the API does not support (SSO, 2FA, workspaces, OCR, quotas, notifications, export, compliance badges) are intentionally left out, so the UI only shows features that exist.
+
+### Chat and citations
+
+Answers are plain text with markers such as `[1]` that refer to citations (page + quote verified by the API). The chat shows each marker as a pill; selecting it opens the PDF at that page and highlights the quote. Answer text may quote the PDF, so it is only rendered as text, never as HTML.
+
+The PDF is rendered with pdf.js to a canvas plus an invisible text layer (used for the highlight and for selecting text). Links, forms and scripts in the PDF are not enabled. pdf.js and its worker (~1.7 MB) are separate files that are only downloaded when a PDF is shown. Fonts or images that need extra pdf.js resources (CJK character maps, JPEG 2000 images) may not display exactly.
 
 ### Authentication flow
 

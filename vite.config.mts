@@ -60,5 +60,8 @@ export default defineConfig({
     // Vuetify components import their own CSS; let Vite process it in component tests.
     server: { deps: { inline: ['vuetify'] } },
     setupFiles: ['src/__tests__/setup.ts'],
+    // Page tests load many Vuetify components the first time; in Docker on Windows
+    // (polled file system, parallel workers) that can take longer than the 5 s default.
+    testTimeout: 15_000,
   },
 })
