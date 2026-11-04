@@ -4,7 +4,7 @@
 #   docker build -f docker/Dockerfile.prod -t askmydocs-web:prod .
 # Versions are pinned so rebuilds are reproducible.
 
-FROM node:26.12.0-bookworm-slim AS build
+FROM node:22.23.2-bookworm-slim AS build
 
 WORKDIR /app
 
