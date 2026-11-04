@@ -22,7 +22,10 @@
 	# For every response (the API adds its own security headers).
 	header {
 		Strict-Transport-Security "{$HSTS:max-age=31536000}"
+		# Do not reveal the server software; "Status" is a FastCGI header PHP-FPM sends.
 		-Server
+		-Via
+		-Status
 	}
 
 	# --- Laravel API -------------------------------------------------------------
