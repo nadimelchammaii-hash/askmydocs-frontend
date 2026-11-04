@@ -10,10 +10,20 @@
 #   PHP_UPSTREAM   host:port of PHP-FPM.
 #   HSTS           Strict-Transport-Security value; "max-age=0" for local testing, so the
 #                  browser does not remember HTTPS-only for localhost.
+#   TRUSTED_PROXIES  Space-separated CIDR ranges of a reverse proxy in front of this one
+#                  (a server shared with another project). Only requests from there may set
+#                  the visitor's IP address and HTTPS. Empty (default): nobody is trusted.
+#
+# Behind another proxy, SITE_ADDRESS is ":80": plain HTTP inside Docker, while the front
+# proxy handles HTTPS and certificates.
 
 {
 	# The admin API is not needed (configuration only changes with a new image).
 	admin off
+
+	servers {
+		trusted_proxies static {$TRUSTED_PROXIES}
+	}
 }
 
 {$SITE_ADDRESS:localhost} {

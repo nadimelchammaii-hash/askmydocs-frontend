@@ -35,6 +35,8 @@ The SPA container ([`docker/Dockerfile.dev`](docker/Dockerfile.dev)) mounts this
 
 [`docker/Dockerfile.prod`](docker/Dockerfile.prod) builds the SPA and serves it with Caddy ([`docker/Caddyfile`](docker/Caddyfile)), which also handles HTTPS and passes `/api`, `/sanctum` and `/up` to the Laravel API on the same address. API requests therefore use relative URLs (`VITE_API_BASE_URL` is empty in this build). Caddy adds the security headers (Content-Security-Policy, no framing, HSTS) and caches the hashed files in `assets/` for a year, while `index.html` is always re-checked.
 
+On a server shared with another project, this Caddy can run behind that project's Caddy instead: `SITE_ADDRESS=:80` (plain HTTP inside Docker) and `TRUSTED_PROXIES` set to the front proxy's subnet, so the visitor's address and HTTPS are passed on to Laravel. See "Shared server" in the backend README.
+
 The image is built and run by the backend's `compose.prod.yaml`; see "Production (Docker)" in the backend README.
 
 ## Continuous integration
