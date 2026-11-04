@@ -37,6 +37,10 @@ The SPA container ([`docker/Dockerfile.dev`](docker/Dockerfile.dev)) mounts this
 
 The image is built and run by the backend's `compose.prod.yaml`; see "Production (Docker)" in the backend README.
 
+## Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and pull request: lint, type check, tests, build, and `npm audit` of the production packages. On `main`, after the checks pass, it builds the production image and pushes it to `ghcr.io/<owner>/askmydocs-web` (tags: full commit SHA and `latest`). [`.github/dependabot.yml`](.github/dependabot.yml) proposes weekly npm, Docker image and Actions updates (versions at least 14 days old).
+
 ## Alternative: local development (Windows)
 
 Runs natively with Node.js (v22+). The backend API must be running on `http://localhost:8000` (see the backend README).
