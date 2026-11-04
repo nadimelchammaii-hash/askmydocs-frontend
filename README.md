@@ -31,6 +31,12 @@ docker compose exec frontend npm test
 
 The SPA container ([`docker/Dockerfile.dev`](docker/Dockerfile.dev)) mounts this folder, so edits reload the page as usual. Its `node_modules` is a Docker volume with Linux packages, separate from the Windows `node_modules/` folder, and is installed automatically when `package-lock.json` changes. File changes are detected by polling (`VITE_DEV_POLLING`), because change events from Windows folders do not reach containers.
 
+## Production
+
+[`docker/Dockerfile.prod`](docker/Dockerfile.prod) builds the SPA and serves it with Caddy ([`docker/Caddyfile`](docker/Caddyfile)), which also handles HTTPS and passes `/api`, `/sanctum` and `/up` to the Laravel API on the same address. API requests therefore use relative URLs (`VITE_API_BASE_URL` is empty in this build). Caddy adds the security headers (Content-Security-Policy, no framing, HSTS) and caches the hashed files in `assets/` for a year, while `index.html` is always re-checked.
+
+The image is built and run by the backend's `compose.prod.yaml`; see "Production (Docker)" in the backend README.
+
 ## Alternative: local development (Windows)
 
 Runs natively with Node.js (v22+). The backend API must be running on `http://localhost:8000` (see the backend README).
