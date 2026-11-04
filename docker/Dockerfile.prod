@@ -1,0 +1,32 @@
+# PRODUCTION image of the website: the built SPA served by Caddy, which also terminates
+# HTTPS and passes /api, /sanctum and /up to the Laravel API (PHP-FPM). Build from the
+# repository root:
+#   docker build -f docker/Dockerfile.prod -t askmydocs-web:prod .
+# Versions are pinned so rebuilds are reproducible.
+
+FROM node:22.23.2-bookworm-slim AS build
+
+WORKDIR /app
+
+# Dependencies first, so this layer is reused when only source files change.
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+COPY . .
+# The API is on the same site (/api), so requests use relative URLs. Set explicitly so a
+# local .env file can never point the production build at a development server.
+ENV VITE_API_BASE_URL=""
+# Type-checks, then builds into dist/.
+RUN npm run build
+
+# --- Final image: Caddy and the static files only ---------------------------------------
+FROM caddy:2.11.7-alpine
+
+COPY docker/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/dist /srv
+
+# Run as an unprivileged user. The caddy binary may still bind ports 80/443
+# (the image grants it that capability); /data holds certificates, /config its state.
+RUN addgroup -S -g 1000 caddy && adduser -S -u 1000 -G caddy caddy \
+    && chown -R caddy:caddy /data /config
+USER caddy

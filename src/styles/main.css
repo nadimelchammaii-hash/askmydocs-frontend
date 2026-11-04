@@ -1,0 +1,60 @@
+/**
+ * Global styles from the Google Stitch design "AskMyDocs AI PDF Assistant".
+ * Colors live in the Vuetify theme (plugins/vuetify.ts); this file holds fonts,
+ * the type scale and spacing tokens, named as in the Stitch design.
+ */
+
+/* Self-hosted fonts and icons: no request to a third-party CDN. */
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@material-symbols/font-400/outlined.css';
+
+:root {
+  --v-font-body: 'Geist Variable', system-ui, sans-serif;
+  --v-font-heading: 'Geist Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  /* Spacing (Stitch "space-*", "gutter", "margin") */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --gutter: 1.25rem;
+  --gutter-desktop: 1.5rem;
+  --margin: 1rem;
+  --margin-desktop: 2rem;
+
+  /* Soft elevation used throughout the design instead of borders */
+  --shadow-soft: 0 1px 8px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+body {
+  font-family: var(--v-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Type scale (Stitch "fontSize" tokens) */
+.text-headline-xl { font-size: 36px; line-height: 44px; letter-spacing: -0.03em; font-weight: 600; }
+.text-headline-xl-mobile { font-size: 28px; line-height: 36px; letter-spacing: -0.025em; font-weight: 600; }
+.text-headline-lg { font-size: 24px; line-height: 32px; letter-spacing: -0.02em; font-weight: 600; }
+.text-headline-md { font-size: 18px; line-height: 26px; letter-spacing: -0.015em; font-weight: 600; }
+.text-body-lg { font-size: 16px; line-height: 26px; letter-spacing: -0.01em; font-weight: 400; }
+.text-body-md { font-size: 14px; line-height: 22px; letter-spacing: -0.005em; font-weight: 400; }
+.text-body-sm { font-size: 13px; line-height: 18px; letter-spacing: 0; font-weight: 400; }
+.text-label-md { font-size: 12px; line-height: 16px; letter-spacing: 0.01em; font-weight: 500; }
+.text-label-code { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: -0.01em; font-weight: 500; }
+.text-citation-pill { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: 0.02em; font-weight: 600; }
+
+@media (max-width: 599.98px) {
+  .text-headline-xl { font-size: 28px; line-height: 36px; letter-spacing: -0.025em; }
+}
+
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-sm { box-shadow: var(--shadow-sm); }
+
+/* Icons: Material Symbols Outlined, sized by Vuetify's VIcon */
+.v-icon.material-symbols-outlined {
+  font-size: inherit;
+}

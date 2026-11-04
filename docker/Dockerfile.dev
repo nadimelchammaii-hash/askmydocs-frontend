@@ -1,0 +1,18 @@
+# Node image for LOCAL DEVELOPMENT of the SPA (Vite dev server), used by the backend
+# repository's compose.yaml. The source is mounted from the host, not copied in.
+
+FROM node:22.23.2-bookworm-slim
+
+COPY docker/entrypoint.sh /usr/local/bin/askmydocs-entrypoint
+# Strip Windows line endings (CRLF) in case the file was checked out on Windows.
+RUN sed -i 's/\r$//' /usr/local/bin/askmydocs-entrypoint \
+    && chmod +x /usr/local/bin/askmydocs-entrypoint \
+    # node_modules is a Docker volume (Linux packages, kept apart from the Windows ones).
+    && mkdir -p /app/node_modules \
+    && chown node:node /app /app/node_modules
+
+USER node
+WORKDIR /app
+
+ENTRYPOINT ["askmydocs-entrypoint"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

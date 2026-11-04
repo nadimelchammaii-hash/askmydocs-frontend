@@ -1,7 +1,7 @@
 /**
  * main.ts
  *
- * Bootstraps Vuetify and other plugins then mounts the App`
+ * Bootstraps Vuetify and other plugins then mounts the App
  */
 
 // Composables
@@ -13,9 +13,8 @@ import { registerPlugins } from '@/plugins'
 // Components
 import App from './App.vue'
 
-// Styles
-import 'virtual:uno.css'
-import 'unfonts.css'
+// Styles (fonts, type scale, spacing tokens from the Stitch design)
+import '@/styles/main.css'
 
 const app = createApp(App)
 

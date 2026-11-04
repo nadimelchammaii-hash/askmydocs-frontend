@@ -1,79 +1,127 @@
-# askmydocs-frontend
+# AskMyDocs — Frontend
 
-Scaffolded with Vuetify CLI.
+Vue single-page application for AskMyDocs: upload PDF documents and ask questions about them, with answers cited by page.
 
-## ❗️ Documentation
+The API is a separate application in its own repository: **askmydocs-backend** (Laravel). Its contract is documented in `askmydocs-backend/docs/api.md`.
 
-- Primary docs: https://0.vuetifyjs.com/
-- Getting started guide: https://0.vuetifyjs.com/guide
-- Community support: https://community.vuetifyjs.com/
-- Issue tracker: https://issues.vuetifyjs.com/
+> Status: all screens implemented (Phase 6) from the approved Google Stitch design: sign in and registration, password reset, dashboard, document library, chat with cited answers and PDF viewer, conversations and account settings.
 
-## 🧱 Stack
+## Stack
 
-- Framework: Vue 3 + Vite
-- UI Library: Vuetify0
-- Language: TypeScript
-- Package manager: npm
+| Concern | Choice |
+|---|---|
+| Framework | Vue 3 + TypeScript + Vite |
+| UI | Vuetify 4 |
+| State | Pinia |
+| Routing | Vue Router |
+| HTTP | axios |
+| PDF viewer | pdf.js (`pdfjs-dist`, loaded only when a PDF is opened) |
+| Tests | Vitest, @vue/test-utils, jsdom |
+| Lint | ESLint (`eslint-config-vuetify`) |
 
-## 🧭 Start Here
+## Running with Docker (recommended)
 
-- Main entry: `src/main.ts`
-- Main app component: `src/App.vue`
-- Main styles: `src/styles/`
-- Plugin setup: `src/plugins/`
+The whole stack (database, API, workers and this SPA's dev server) is started from the backend repository, which must be next to this one:
 
-## 📁 Project Structure
+```powershell
+cd ..skmydocs-backend
+docker compose up -d --build       # SPA at http://localhost:5173
+docker compose exec frontend npm test
+```
 
-- `src/main.ts` — application entry point
-- `src/App.vue` — root component
-- `src/components/` — reusable Vue components
-- `src/plugins/` — plugin registration and setup
-- `src/styles/` — global styles and theme settings
-- `public/` — static public files
+The SPA container ([`docker/Dockerfile.dev`](docker/Dockerfile.dev)) mounts this folder, so edits reload the page as usual. Its `node_modules` is a Docker volume with Linux packages, separate from the Windows `node_modules/` folder, and is installed automatically when `package-lock.json` changes. File changes are detected by polling (`VITE_DEV_POLLING`), because change events from Windows folders do not reach containers.
 
-## ✨ Enabled Features
+## Production
 
-- ESLint
-- Vue Router
-- UnoCSS
+[`docker/Dockerfile.prod`](docker/Dockerfile.prod) builds the SPA and serves it with Caddy ([`docker/Caddyfile`](docker/Caddyfile)), which also handles HTTPS and passes `/api`, `/sanctum` and `/up` to the Laravel API on the same address. API requests therefore use relative URLs (`VITE_API_BASE_URL` is empty in this build). Caddy adds the security headers (Content-Security-Policy, no framing, HSTS) and caches the hashed files in `assets/` for a year, while `index.html` is always re-checked.
 
-## 💿 Install
+On a server shared with another project, this Caddy can run behind that project's Caddy instead: `SITE_ADDRESS=:80` (plain HTTP inside Docker) and `TRUSTED_PROXIES` set to the front proxy's subnet, so the visitor's address and HTTPS are passed on to Laravel. See "Shared server" in the backend README.
 
-Use your selected package manager (npm) to install dependencies:
+The image is built and run by the backend's `compose.prod.yaml`; see "Production (Docker)" in the backend README.
 
-```bash
+## Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and pull request: lint, type check, tests, build, and `npm audit` of the production packages. On `main`, after the checks pass, it builds the production image and pushes it to `ghcr.io/<owner>/askmydocs-web` (tags: full commit SHA and `latest`). [`.github/dependabot.yml`](.github/dependabot.yml) proposes weekly npm, Docker image and Actions updates (versions at least 14 days old).
+
+## Alternative: local development (Windows)
+
+Runs natively with Node.js (v22+). The backend API must be running on `http://localhost:8000` (see the backend README).
+
+```powershell
 npm install
+copy .env.example .env.local      # then adjust if needed
+npm run dev                       # http://localhost:5173
 ```
 
-## 🚀 Quick Start
+### Port
 
-```bash
-npm install
-npm run dev
+The dev server uses port **5173** (Vite's default; `3000` fell inside a Windows-reserved port range) with `strictPort`: if 5173 is taken, Vite stops with an error instead of switching to another port. This is deliberate — the API only accepts requests from `http://localhost:5173` (CORS and Sanctum), so a different port would break login.
+
+Check the port before starting:
+
+```powershell
+Get-NetTCPConnection -State Listen -LocalPort 5173 -ErrorAction SilentlyContinue   # no output = free
 ```
 
-## 🏗️ Build
+To use another port, change `server.port` in `vite.config.mts` **and** `FRONTEND_URL` / `SANCTUM_STATEFUL_DOMAINS` in the backend `.env`.
 
-```bash
-npm run build
+Use `http://localhost:5173`, not `127.0.0.1`: the API only accepts the `localhost` origin, and the session cookie is only shared when the SPA and API use the same host name. The dev server redirects `127.0.0.1:5173` to `localhost:5173` automatically.
+
+### Environment
+
+| Variable | Example | Purpose |
+|---|---|---|
+| `VITE_API_BASE_URL` | `http://localhost:8000` | Backend API base URL |
+
+`.env.local` is not committed. Everything prefixed with `VITE_` is bundled into the public JavaScript, so never put secrets in these files.
+
+## Scripts
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Development server |
+| `npm test` | Run unit tests once (`npm run test:watch` to watch) |
+| `npm run type-check` | TypeScript check (app, tests, config) |
+| `npm run lint` / `npm run lint:fix` | ESLint |
+| `npm run build` | Type-check and production build to `dist/` |
+
+## Structure
+
+```
+src/
+  api/          http.ts (axios instance, CSRF retry, error normalisation), auth.ts, documents.ts, conversations.ts and stats.ts (endpoints), errors.ts (ApiError)
+  composables/  usePolling (non-overlapping polling with backoff), useDocumentProcessing (polls a document until ready/failed), useAnswer (polls an answer until completed/failed), useApiForm (submit state, per-field 422 messages), useDocumentLibrary (library list driven by URL filters; refreshes documents still processing), useConversation (chat: loads, asks, follows pending answers)
+  components/   shared UI: AppTextField (label above input), PasswordField (show/hide), PasswordRules (live checklist), RenameDialog and ConfirmDialog (reusable dialogs); documents/ (status chip, upload, rename and delete dialogs, actions menu); chat/ (message with citation pills and sources, question box, PdfViewer)
+  utils/        password.ts (the API's password rules), documentStatus.ts (status labels, which failures can be retried), format.ts (sizes, dates), download.ts, citations.ts (groups citations, splits answers into text and citation pills), quoteMatch.ts (finds a cited quote in the PDF text to highlight it)
+  types/        api.ts — types mirroring the backend API contract
+  stores/       auth.ts — current user (Pinia)
+  router/       index.ts (routes, lazy-loaded pages), guards.ts — route protection (meta.requiresAuth / meta.guestOnly)
+  layouts/      AppLayout (sidebar + top bar on desktop, top bar + bottom navigation on mobile), AuthLayout (login, register)
+  views/        one component per page (auth/: login, register, forgot and reset password)
+  __tests__/    test setup (jsdom stubs for Vuetify) and mountPage() helper for page tests
+  styles/       main.css — fonts, type scale and spacing tokens from the Stitch design
+  plugins/      Vuetify (theme colors and Material Symbols icons from the Stitch design), Pinia, router registration
 ```
 
-## 🧪 Available Scripts
+### Design
 
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
-- `npm run build-only`
-- `npm run type-check`
-- `npm run lint`
-- `npm run lint:fix`
+The UI follows the Google Stitch project "AskMyDocs AI PDF Assistant". Its tokens are implemented as a Vuetify theme (Material 3 color roles, e.g. `bg-surface-container-low`) plus CSS classes named like the Stitch tokens (`text-headline-md`, `text-label-code`, …). Fonts (Geist, JetBrains Mono) and icons (Material Symbols Outlined) are self-hosted npm packages, so the app makes no requests to font CDNs.
 
-## 💪 Support Vuetify Development
+Mockup elements the API does not support (SSO, 2FA, workspaces, OCR, quotas, notifications, export, compliance badges) are intentionally left out, so the UI only shows features that exist.
 
-This project uses Vuetify0 - an MIT licensed Open Source project. We are glad to welcome contributors and any support for ongoing development:
+### Chat and citations
 
-- Contribute to Vuetify and ecosystem projects: https://github.com/vuetifyjs
-- Request enterprise support: https://support.vuetifyjs.com/
-- Sponsor on GitHub: https://github.com/sponsors/vuetifyjs
-- Support on Open Collective: https://opencollective.com/vuetify
+Answers are plain text with markers such as `[1]` that refer to citations (page + quote verified by the API). The chat shows each marker as a pill; selecting it opens the PDF at that page and highlights the quote. Answer text may quote the PDF, so it is only rendered as text, never as HTML.
+
+The PDF is rendered with pdf.js to a canvas plus an invisible text layer (used for the highlight and for selecting text). Links, forms and scripts in the PDF are not enabled. pdf.js and its worker (~1.7 MB) are separate files that are only downloaded when a PDF is shown. Fonts or images that need extra pdf.js resources (CJK character maps, JPEG 2000 images) may not display exactly.
+
+### Authentication flow
+
+The API uses Laravel Sanctum **session cookies** (HttpOnly; JavaScript never sees them). The client:
+
+1. requests `GET /sanctum/csrf-cookie` before login/register,
+2. sends every request with credentials and the `X-XSRF-TOKEN` header (configured in `src/api/http.ts`),
+3. on `419` fetches a new CSRF cookie and retries once,
+4. on `401` clears the local user (session expired) and, on a protected page, goes to the login page.
+
+On startup, the route guard asks the API who is logged in (`GET /api/v1/user`) before entering protected routes.

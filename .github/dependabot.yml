@@ -1,0 +1,34 @@
+# Weekly update pull requests; CI tests each one before you merge it.
+# cooldown: only versions released at least 14 days ago are proposed (security fixes
+# are not delayed). Minor and patch updates are grouped into one pull request.
+
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+
+  # Base images in docker/Dockerfile.dev and docker/Dockerfile.prod.
+  - package-ecosystem: docker
+    directory: /docker
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      actions:
+        patterns: ["*"]
