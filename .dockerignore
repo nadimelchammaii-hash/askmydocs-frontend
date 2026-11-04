@@ -1,0 +1,16 @@
+# Files that must never be copied into a Docker image.
+
+# Local settings (could point the build at a development API)
+.env
+.env.*
+!.env.example
+
+# Installed or built inside the image
+node_modules
+dist
+
+# Version control and editors
+.git
+.gitattributes
+.vscode
+.idea
