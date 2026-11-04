@@ -1,7 +1,7 @@
 # Node image for LOCAL DEVELOPMENT of the SPA (Vite dev server), used by the backend
 # repository's compose.yaml. The source is mounted from the host, not copied in.
 
-FROM node:22.23.2-bookworm-slim
+FROM node:26.12.0-bookworm-slim
 
 COPY docker/entrypoint.sh /usr/local/bin/askmydocs-entrypoint
 # Strip Windows line endings (CRLF) in case the file was checked out on Windows.
