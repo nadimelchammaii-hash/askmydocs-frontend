@@ -227,6 +227,13 @@ describe('Try the demo', () => {
     return wrapper.findAll('button').find(button => accessibleText(button.element) === 'Try the demo')!
   }
 
+  it('is offered first, above the sign-in form', async () => {
+    const { wrapper } = await open('/login')
+
+    const position = demoButton(wrapper).element.compareDocumentPosition(wrapper.get('form').element)
+    expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
   it('starts a demo and opens the dashboard', async () => {
     vi.mocked(authApi.startDemo).mockResolvedValue({ ...user, name: 'Demo visitor', is_demo: true, demo_expires_at: '2026-11-07T10:00:00+00:00' })
     const { wrapper, router } = await open('/login')

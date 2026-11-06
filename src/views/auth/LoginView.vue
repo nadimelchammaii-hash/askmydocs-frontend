@@ -64,6 +64,41 @@
       <p class="text-body-md text-on-surface-variant">Sign in to ask questions about your PDFs and get answers with page citations.</p>
     </div>
 
+    <!-- Try the demo: first thing a visitor sees, above the sign-in form. -->
+    <v-alert
+      v-if="demoError"
+      class="mb-4"
+      color="error"
+      density="compact"
+      icon="error"
+      role="alert"
+      rounded="lg"
+      :text="demoError"
+      variant="tonal"
+    />
+
+    <v-btn
+      block
+      color="primary"
+      :loading="startingDemo"
+      prepend-icon="play_circle"
+      size="x-large"
+      variant="outlined"
+      @click="tryDemo"
+    >
+      Try the demo
+    </v-btn>
+
+    <p class="mt-2 text-center text-body-sm text-on-surface-variant">
+      No sign-up needed: a private demo with sample PDFs, deleted after 24 hours.
+    </p>
+
+    <div class="d-flex align-center ga-3 my-6" role="presentation">
+      <v-divider />
+      <span class="text-label-md text-on-surface-variant text-no-wrap">or sign in</span>
+      <v-divider />
+    </div>
+
     <v-alert
       v-if="passwordWasReset"
       class="mb-4"
@@ -135,41 +170,6 @@
         Sign in
       </v-btn>
     </form>
-
-    <div class="d-flex align-center ga-3 my-6" role="presentation">
-      <v-divider />
-      <span class="text-label-md text-on-surface-variant">or</span>
-      <v-divider />
-    </div>
-
-    <v-alert
-      v-if="demoError"
-      class="mb-4"
-      color="error"
-      density="compact"
-      icon="error"
-      role="alert"
-      rounded="lg"
-      :text="demoError"
-      variant="tonal"
-    />
-
-    <v-btn
-      block
-      class="demo-button"
-      color="primary"
-      :loading="startingDemo"
-      prepend-icon="play_circle"
-      size="x-large"
-      variant="outlined"
-      @click="tryDemo"
-    >
-      Try the demo
-    </v-btn>
-
-    <p class="mt-2 text-center text-body-sm text-on-surface-variant">
-      No sign-up needed: a private demo with sample PDFs, deleted after 24 hours.
-    </p>
 
     <p class="mt-6 text-center text-body-md text-on-surface-variant">
       Don't have an account?
