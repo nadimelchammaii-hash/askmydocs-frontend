@@ -25,6 +25,10 @@ export interface User {
   email: string
   /** ISO 8601 */
   created_at: string
+  /** A temporary "Try the demo" account. */
+  is_demo: boolean
+  /** When the demo account is deleted (ISO 8601); null for real accounts. */
+  demo_expires_at: string | null
 }
 
 export interface RegisterPayload {
@@ -103,6 +107,8 @@ export interface Document {
   error_code: DocumentErrorCode | (string & {}) | null
   /** Safe to show to the user. */
   error_message: string | null
+  /** A demo sample: cannot be renamed or deleted. */
+  is_sample: boolean
   /** ISO 8601 */
   created_at: string
   processed_at: string | null

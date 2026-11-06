@@ -29,6 +29,13 @@ export const authApi = {
     return data.data
   },
 
+  /** "Try the demo": creates a temporary demo account with sample documents and signs in to it. */
+  async startDemo (): Promise<User> {
+    await authApi.csrfCookie()
+    const { data } = await http.post<Resource<User>>('/api/v1/auth/demo')
+    return data.data
+  },
+
   async logout (): Promise<void> {
     await http.post('/api/v1/auth/logout')
   },

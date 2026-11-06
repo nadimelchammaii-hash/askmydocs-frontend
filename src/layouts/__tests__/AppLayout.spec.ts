@@ -18,9 +18,11 @@ beforeEach(() => {
   vi.resetAllMocks()
 })
 
-async function mountLayout (path = '/') {
+async function mountLayout (path = '/', demo = false) {
   const auth = useAuthStore()
-  auth.user = { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '' }
+  auth.user = demo
+    ? { id: 2, name: 'Demo visitor', email: 'demo-1@demo.askmydocs.invalid', created_at: '', is_demo: true, demo_expires_at: '2026-11-07T10:00:00+00:00' }
+    : { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '', is_demo: false, demo_expires_at: null }
   auth.loaded = true
 
   const router = createRouter({ history: createMemoryHistory(), routes })
@@ -75,5 +77,39 @@ describe('AppLayout', () => {
     await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('login'))
     expect(authApi.logout).toHaveBeenCalledOnce()
     expect(auth.user).toBeNull()
+  })
+})
+
+describe('Demo banner', () => {
+  it('is shown to demo accounts with the end of the demo', async () => {
+    const { wrapper } = await mountLayout('/', true)
+
+    expect(wrapper.text()).toContain('You are exploring the demo')
+    expect(wrapper.text()).toContain('deleted on')
+    expect(wrapper.text()).toContain('Create your own account')
+  })
+
+  it('is not shown to real accounts', async () => {
+    const { wrapper } = await mountLayout('/')
+
+    expect(wrapper.text()).not.toContain('You are exploring the demo')
+  })
+
+  it('is not shown on the full-height chat page', async () => {
+    const { wrapper } = await mountLayout('/conversations/conv1', true)
+
+    expect(wrapper.text()).not.toContain('You are exploring the demo')
+  })
+
+  it('ends the demo and opens registration', async () => {
+    vi.mocked(authApi.logout).mockResolvedValue()
+    const { wrapper, router, auth } = await mountLayout('/', true)
+
+    await wrapper.findAll('button').find(button => accessibleText(button.element) === 'Create your own account')!.trigger('click')
+    await flushPromises()
+
+    expect(authApi.logout).toHaveBeenCalledOnce()
+    expect(auth.user).toBeNull()
+    await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('register'))
   })
 })

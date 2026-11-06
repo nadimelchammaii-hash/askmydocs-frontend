@@ -256,7 +256,10 @@
 
                   <span v-else class="text-body-lg font-weight-medium text-on-surface text-truncate">{{ document.title }}</span>
                   <span v-if="document.status === 'failed' && document.error_message" class="text-body-sm text-error">{{ document.error_message }}</span>
-                  <span v-else class="text-citation-pill text-outline text-truncate">{{ document.original_filename }}</span>
+
+                  <span v-else class="text-citation-pill text-outline text-truncate">
+                    <span v-if="document.is_sample" class="text-primary">Sample · </span>{{ document.original_filename }}
+                  </span>
                 </div>
               </div>
             </td>
@@ -339,6 +342,7 @@
 
               <div class="d-flex align-center flex-wrap ga-2">
                 <DocumentStatusChip :document="document" />
+                <span v-if="document.is_sample" class="text-citation-pill text-primary">Sample</span>
                 <span v-if="document.page_count !== null" class="text-citation-pill text-outline">{{ plural(document.page_count, 'page') }}</span>
                 <span class="text-citation-pill text-outline">{{ formatBytes(document.size_bytes) }}</span>
               </div>

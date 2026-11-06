@@ -15,6 +15,8 @@ export const useAuthStore = defineStore('auth', () => {
   let pendingLoad: Promise<void> | null = null
 
   const isAuthenticated = computed(() => user.value !== null)
+  /** Signed in to a temporary "Try the demo" account. */
+  const isDemo = computed(() => user.value?.is_demo === true)
 
   async function fetchUser (): Promise<void> {
     try {
@@ -48,6 +50,10 @@ export const useAuthStore = defineStore('auth', () => {
     setUser(await authApi.register(payload))
   }
 
+  async function startDemo (): Promise<void> {
+    setUser(await authApi.startDemo())
+  }
+
   async function logout (): Promise<void> {
     try {
       await authApi.logout()
@@ -72,5 +78,5 @@ export const useAuthStore = defineStore('auth', () => {
     loaded.value = true
   }
 
-  return { user, loaded, isAuthenticated, fetchUser, ensureLoaded, login, register, logout, updateProfile, clear }
+  return { user, loaded, isAuthenticated, isDemo, fetchUser, ensureLoaded, login, register, startDemo, logout, updateProfile, clear }
 })

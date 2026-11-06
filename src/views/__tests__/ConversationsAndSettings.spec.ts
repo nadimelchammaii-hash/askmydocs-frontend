@@ -16,7 +16,7 @@ vi.mock('@/api/auth', () => ({
   authApi: { updateProfile: vi.fn(), updatePassword: vi.fn(), logout: vi.fn() },
 }))
 
-const user = { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '' }
+const user = { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '', is_demo: false, demo_expires_at: null }
 
 const refunds: Conversation = {
   id: '01jconv000000000000000000a',
@@ -150,6 +150,17 @@ describe('ConversationsView', () => {
 })
 
 describe('SettingsView', () => {
+  it('shows a note instead of the profile and password forms in a demo', async () => {
+    const { wrapper } = await open('/settings')
+    useAuthStore().user = { ...user, is_demo: true, demo_expires_at: '2026-11-07T10:00:00+00:00' }
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Demo accounts cannot change their name, email or password')
+    expect(wrapper.find('#profile-name').exists()).toBe(false)
+    expect(wrapper.find('#current-password').exists()).toBe(false)
+    expect(wrapper.findAll('button').some(button => accessibleText(button.element) === 'Sign out')).toBe(true)
+  })
+
   it('saves only the changed profile fields', async () => {
     vi.mocked(authApi.updateProfile).mockResolvedValue({ ...user, name: 'Ana Costa' })
     const { wrapper } = await open('/settings')

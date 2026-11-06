@@ -36,6 +36,7 @@ const document_: Document = {
   is_finished: true,
   error_code: null,
   error_message: null,
+  is_sample: false,
   created_at: '2026-11-01T10:00:00Z',
   processed_at: '2026-11-01T10:01:00Z',
 }

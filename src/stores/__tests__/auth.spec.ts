@@ -14,7 +14,7 @@ vi.mock('@/api/auth', () => ({
   },
 }))
 
-const user = { id: 1, name: 'Ana', email: 'ana@example.com', created_at: '2026-10-26T09:51:46+00:00' }
+const user = { id: 1, name: 'Ana', email: 'ana@example.com', created_at: '2026-10-26T09:51:46+00:00', is_demo: false, demo_expires_at: null }
 const unauthenticated = new ApiError('Unauthenticated.', 401, 'unauthenticated')
 const networkError = new ApiError('Cannot reach the server.', 0, 'network_error')
 

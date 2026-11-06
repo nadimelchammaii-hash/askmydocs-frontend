@@ -34,6 +34,7 @@ function makeDocument (overrides: Partial<Document> = {}): Document {
     is_finished: true,
     error_code: null,
     error_message: null,
+    is_sample: false,
     created_at: '2026-10-12T09:00:00+00:00',
     processed_at: '2026-10-12T09:01:00+00:00',
     conversations_count: 0,
@@ -354,5 +355,20 @@ describe('helpers', () => {
     expect(canRetry(makeDocument({ status: 'failed', error_code: 'embedding_failed' }))).toBe(true)
     expect(canRetry(encrypted)).toBe(false)
     expect(canRetry(ready)).toBe(false)
+  })
+})
+
+describe('Demo samples', () => {
+  it('are labelled and cannot be renamed or deleted', async () => {
+    const sample = makeDocument({ is_sample: true })
+    vi.mocked(documentsApi.list).mockResolvedValue(pageOf([sample]))
+    const { wrapper } = await open('/documents')
+
+    expect(row(wrapper, sample).text()).toContain('Sample')
+    await click('More actions for Employee Handbook')
+
+    expect(control('Download PDF')).toBeDefined()
+    expect(control('Rename')).toBeUndefined()
+    expect(control('Delete')).toBeUndefined()
   })
 })

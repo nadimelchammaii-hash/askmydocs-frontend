@@ -11,12 +11,13 @@ vi.mock('@/api/auth', () => ({
   authApi: {
     login: vi.fn(),
     register: vi.fn(),
+    startDemo: vi.fn(),
     forgotPassword: vi.fn(),
     resetPassword: vi.fn(),
   },
 }))
 
-const user = { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '' }
+const user = { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '', is_demo: false, demo_expires_at: null }
 let current: VueWrapper | undefined
 
 beforeEach(() => {
@@ -213,5 +214,49 @@ describe('ResetPasswordView', () => {
 
     expect(wrapper.find('form').exists()).toBe(false)
     expect(wrapper.text()).toContain('This reset link is incomplete')
+  })
+})
+
+describe('Try the demo', () => {
+  /** Texts of the alert boxes (form fields also contain empty role="alert" message areas). */
+  function alerts (wrapper: VueWrapper) {
+    return wrapper.findAll('.v-alert').map(alert => alert.text())
+  }
+
+  function demoButton (wrapper: VueWrapper) {
+    return wrapper.findAll('button').find(button => accessibleText(button.element) === 'Try the demo')!
+  }
+
+  it('starts a demo and opens the dashboard', async () => {
+    vi.mocked(authApi.startDemo).mockResolvedValue({ ...user, name: 'Demo visitor', is_demo: true, demo_expires_at: '2026-11-07T10:00:00+00:00' })
+    const { wrapper, router } = await open('/login')
+
+    await demoButton(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(authApi.startDemo).toHaveBeenCalledOnce()
+    expect(useAuthStore().isDemo).toBe(true)
+    await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('dashboard'))
+  })
+
+  it('explains the hourly limit in plain words and stays on the page', async () => {
+    vi.mocked(authApi.startDemo).mockRejectedValue(new ApiError('Too Many Attempts.', 429, 'too_many_requests'))
+    const { wrapper, router } = await open('/login')
+
+    await demoButton(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(alerts(wrapper)).toContainEqual(expect.stringContaining('Several demos were started from your network recently'))
+    expect(router.currentRoute.value.name).toBe('login')
+  })
+
+  it('shows the server message when the demo is unavailable', async () => {
+    vi.mocked(authApi.startDemo).mockRejectedValue(new ApiError('The demo is not available right now. Please try again later.', 503, 'demo_unavailable'))
+    const { wrapper } = await open('/login')
+
+    await demoButton(wrapper).trigger('click')
+    await flushPromises()
+
+    expect(alerts(wrapper)).toContainEqual(expect.stringContaining('The demo is not available right now'))
   })
 })

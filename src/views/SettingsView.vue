@@ -97,8 +97,21 @@
       <p class="text-body-md text-on-surface-variant">Manage your profile, password and session.</p>
     </div>
 
+    <!-- Demo accounts: no profile or password changes (the API refuses them with demo_account). -->
+    <section
+      v-if="auth.isDemo"
+      aria-labelledby="demo-title"
+      class="card bg-surface-container-lowest rounded-lg shadow-sm d-flex flex-column ga-2"
+    >
+      <h2 id="demo-title" class="text-headline-lg text-on-surface">Demo account</h2>
+
+      <p class="text-body-md text-on-surface-variant">
+        Demo accounts cannot change their name, email or password. Create your own account (the button at the top of the page) to keep your documents.
+      </p>
+    </section>
+
     <!-- Profile -->
-    <section aria-labelledby="profile-title" class="card bg-surface-container-lowest rounded-lg shadow-sm d-flex flex-column ga-5">
+    <section v-if="!auth.isDemo" aria-labelledby="profile-title" class="card bg-surface-container-lowest rounded-lg shadow-sm d-flex flex-column ga-5">
       <div class="d-flex flex-column">
         <span class="eyebrow text-citation-pill text-primary">Identity</span>
         <h2 id="profile-title" class="text-headline-lg text-on-surface">Profile</h2>
@@ -160,7 +173,7 @@
     </section>
 
     <!-- Password -->
-    <section aria-labelledby="password-title" class="card bg-surface-container-lowest rounded-lg shadow-sm d-flex flex-column ga-5">
+    <section v-if="!auth.isDemo" aria-labelledby="password-title" class="card bg-surface-container-lowest rounded-lg shadow-sm d-flex flex-column ga-5">
       <div class="d-flex flex-column">
         <span class="eyebrow text-citation-pill text-primary">Security</span>
         <h2 id="password-title" class="text-headline-lg text-on-surface">Password</h2>

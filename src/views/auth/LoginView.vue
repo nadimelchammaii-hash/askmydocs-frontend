@@ -2,16 +2,41 @@
 /** Stitch: "Login — AskMyDocs". */
   import { computed, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
+  import { toApiError } from '@/api/errors'
   import AppTextField from '@/components/AppTextField.vue'
   import PasswordField from '@/components/PasswordField.vue'
   import { useApiForm } from '@/composables/useApiForm'
-  import { safeRedirect } from '@/router/guards'
+  import { HOME_ROUTE, safeRedirect } from '@/router/guards'
   import { useAuthStore } from '@/stores/auth'
 
   const auth = useAuthStore()
   const route = useRoute()
   const router = useRouter()
   const { submitting, fieldErrors, formError, submit, clearFieldError } = useApiForm()
+
+  // --- Try the demo ------------------------------------------------------------------
+
+  const startingDemo = ref(false)
+  const demoError = ref<string | null>(null)
+
+  async function tryDemo () {
+    if (startingDemo.value) {
+      return
+    }
+    startingDemo.value = true
+    demoError.value = null
+    try {
+      await auth.startDemo()
+      await router.replace({ name: HOME_ROUTE })
+    } catch (error) {
+      const apiError = toApiError(error)
+      demoError.value = apiError.code === 'too_many_requests'
+        ? 'Several demos were started from your network recently. Please try again in an hour.'
+        : apiError.message
+    } finally {
+      startingDemo.value = false
+    }
+  }
 
   const email = ref(typeof route.query.email === 'string' ? route.query.email : '')
   const password = ref('')
@@ -110,6 +135,41 @@
         Sign in
       </v-btn>
     </form>
+
+    <div class="d-flex align-center ga-3 my-6" role="presentation">
+      <v-divider />
+      <span class="text-label-md text-on-surface-variant">or</span>
+      <v-divider />
+    </div>
+
+    <v-alert
+      v-if="demoError"
+      class="mb-4"
+      color="error"
+      density="compact"
+      icon="error"
+      role="alert"
+      rounded="lg"
+      :text="demoError"
+      variant="tonal"
+    />
+
+    <v-btn
+      block
+      class="demo-button"
+      color="primary"
+      :loading="startingDemo"
+      prepend-icon="play_circle"
+      size="x-large"
+      variant="outlined"
+      @click="tryDemo"
+    >
+      Try the demo
+    </v-btn>
+
+    <p class="mt-2 text-center text-body-sm text-on-surface-variant">
+      No sign-up needed: a private demo with sample PDFs, deleted after 24 hours.
+    </p>
 
     <p class="mt-6 text-center text-body-md text-on-surface-variant">
       Don't have an account?

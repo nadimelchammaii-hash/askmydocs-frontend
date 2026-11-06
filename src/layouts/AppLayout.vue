@@ -7,6 +7,7 @@
   import { computed, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useDisplay } from 'vuetify'
+  import DemoBanner from '@/components/DemoBanner.vue'
   import { LOGIN_ROUTE } from '@/router/guards'
   import { useAuthStore } from '@/stores/auth'
 
@@ -204,6 +205,8 @@
 
   <v-main class="bg-surface">
     <div :class="route.meta.fullBleed ? 'page page--full' : 'page pa-4 pa-md-8'">
+      <!-- Not on full-height pages (chat): it would push the composer off-screen. -->
+      <DemoBanner v-if="auth.isDemo && !route.meta.fullBleed" class="mb-6" />
       <router-view />
     </div>
   </v-main>

@@ -37,6 +37,7 @@ const readyDocument: Document = {
   is_finished: true,
   error_code: null,
   error_message: null,
+  is_sample: false,
   created_at: new Date().toISOString(),
   processed_at: null,
 }
@@ -74,7 +75,7 @@ afterEach(() => {
 
 async function open () {
   const mounted = await mountPage('/', () => {
-    useAuthStore().user = { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '' }
+    useAuthStore().user = { id: 1, name: 'Ana Silva', email: 'ana@example.com', created_at: '', is_demo: false, demo_expires_at: null }
   })
   current = mounted.wrapper
   return mounted

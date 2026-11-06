@@ -18,7 +18,8 @@
     </template>
 
     <v-list class="bg-surface-container-lowest" density="comfortable" min-width="220" rounded="lg">
-      <v-list-item prepend-icon="drive_file_rename_outline" title="Rename" @click="emit('rename')" />
+      <!-- Demo samples cannot be renamed or deleted (the API refuses it too). -->
+      <v-list-item v-if="!document.is_sample" prepend-icon="drive_file_rename_outline" title="Rename" @click="emit('rename')" />
       <v-list-item prepend-icon="download" title="Download PDF" @click="emit('download')" />
 
       <v-list-item
@@ -28,8 +29,10 @@
         :to="{ name: 'conversations', query: { document: document.id } }"
       />
 
-      <v-divider class="my-1" />
-      <v-list-item base-color="error" prepend-icon="delete" title="Delete" @click="emit('delete')" />
+      <template v-if="!document.is_sample">
+        <v-divider class="my-1" />
+        <v-list-item base-color="error" prepend-icon="delete" title="Delete" @click="emit('delete')" />
+      </template>
     </v-list>
   </v-menu>
 </template>
