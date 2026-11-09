@@ -85,7 +85,7 @@ describe('Demo banner', () => {
     const { wrapper } = await mountLayout('/', true)
 
     expect(wrapper.text()).toContain('You are exploring the demo')
-    expect(wrapper.text()).toContain('deleted on')
+    expect(wrapper.text()).toContain('deleted after 24 hours (on')
     expect(wrapper.text()).toContain('Create your own account')
   })
 

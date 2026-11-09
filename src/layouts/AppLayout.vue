@@ -79,11 +79,14 @@
         <span class="text-headline-md text-on-surface">AskMyDocs</span>
       </router-link>
 
+      <!-- flex-grow-0: "block" buttons grow (flex: 1 0 auto), which in this full-height
+           column stretched the button to share the free space with the spacer below. -->
       <v-btn
         block
-        class="mt-1 mb-3"
+        class="mt-1 mb-3 flex-grow-0"
         color="primary-container"
         prepend-icon="add"
+        size="large"
         :to="uploadRoute"
       >
         <span class="text-label-md">Upload PDF</span>

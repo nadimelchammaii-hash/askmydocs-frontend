@@ -41,7 +41,7 @@
         <p class="text-label-md font-weight-bold">You are exploring the demo</p>
 
         <p class="text-body-sm">
-          Everything here is private to you<span v-if="endsAt"> and deleted on {{ endsAt }}</span>.
+          Everything here is private to you and deleted after 24 hours<span v-if="endsAt"> (on {{ endsAt }})</span>.
           The sample documents cannot be changed; you can upload one PDF of your own.
         </p>
       </div>

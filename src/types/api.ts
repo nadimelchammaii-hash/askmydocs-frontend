@@ -109,6 +109,8 @@ export interface Document {
   error_message: string | null
   /** A demo sample: cannot be renamed or deleted. */
   is_sample: boolean
+  /** Chat suggestions written for this document (demo samples); null: use generic ones. */
+  suggested_questions: string[] | null
   /** ISO 8601 */
   created_at: string
   processed_at: string | null

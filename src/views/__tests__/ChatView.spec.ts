@@ -37,6 +37,7 @@ const document_: Document = {
   error_code: null,
   error_message: null,
   is_sample: false,
+  suggested_questions: null,
   created_at: '2026-11-01T10:00:00Z',
   processed_at: '2026-11-01T10:01:00Z',
 }
@@ -131,6 +132,21 @@ describe('ChatView: new conversation', () => {
     await vi.waitFor(() => expect(wrapper.text()).toContain('Refunds are possible within 30 days'))
     expect(conversationsApi.message).toHaveBeenCalledWith(conversationId, 'a1', expect.any(AbortSignal))
     expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('')
+  })
+
+  it('suggests the questions written for a document instead of the generic ones', async () => {
+    const inTheBox = 'What\'s included in the box?'
+    vi.mocked(documentsApi.get).mockResolvedValue({
+      ...document_,
+      is_sample: true,
+      suggested_questions: ['How long does setup take?', inTheBox],
+    })
+    const { wrapper } = await open(`/documents/${document_.id}/chat`)
+
+    expect(wrapper.text()).not.toContain('What is this document about?')
+    await button(wrapper, inTheBox).trigger('click')
+    expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe(inTheBox)
+    expect(wrapper.text()).toContain('How long does setup take?')
   })
 
   it('explains why questions are not possible yet', async () => {

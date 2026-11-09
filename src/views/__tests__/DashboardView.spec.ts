@@ -38,6 +38,7 @@ const readyDocument: Document = {
   error_code: null,
   error_message: null,
   is_sample: false,
+  suggested_questions: null,
   created_at: new Date().toISOString(),
   processed_at: null,
 }

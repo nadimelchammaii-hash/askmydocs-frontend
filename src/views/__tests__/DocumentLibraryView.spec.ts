@@ -35,6 +35,7 @@ function makeDocument (overrides: Partial<Document> = {}): Document {
     error_code: null,
     error_message: null,
     is_sample: false,
+    suggested_questions: null,
     created_at: '2026-10-12T09:00:00+00:00',
     processed_at: '2026-10-12T09:01:00+00:00',
     conversations_count: 0,

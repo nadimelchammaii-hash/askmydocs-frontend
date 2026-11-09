@@ -18,6 +18,7 @@ const document: Document = {
   error_code: null,
   error_message: null,
   is_sample: false,
+  suggested_questions: null,
   created_at: '2026-10-30T09:10:35+00:00',
   processed_at: null,
 }

@@ -19,10 +19,11 @@
 
   type ViewMode = 'split' | 'chat' | 'pdf'
 
-  const SUGGESTIONS = [
+  /** For any PDF; documents with their own suggestions (the demo samples) use those instead. */
+  const GENERIC_SUGGESTIONS = [
     'What is this document about?',
     'Summarize the key points.',
-    'Are there any deadlines or important dates?',
+    'What topics does it cover?',
   ]
 
   const chat = useConversation()
@@ -45,6 +46,10 @@
       { value: 'chat' as const, label: 'Chat', icon: 'forum' },
       { value: 'pdf' as const, label: 'PDF', icon: 'description' },
     ])
+
+  const suggestions = computed(() => document.value?.suggested_questions?.length
+    ? document.value.suggested_questions
+    : GENERIC_SUGGESTIONS)
 
   const showChat = computed(() => mode.value !== 'pdf')
   const showPdf = computed(() => mode.value !== 'chat')
@@ -191,7 +196,7 @@
 
               <div v-if="document.status === 'ready'" class="d-flex flex-wrap justify-center ga-2">
                 <v-btn
-                  v-for="suggestion in SUGGESTIONS"
+                  v-for="suggestion in suggestions"
                   :key="suggestion"
                   class="bg-surface-container-low text-on-surface"
                   rounded="pill"
