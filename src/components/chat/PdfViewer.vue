@@ -22,7 +22,9 @@
 
   const viewport = useTemplateRef<HTMLDivElement>('viewport')
   const canvas = useTemplateRef<HTMLCanvasElement>('canvas')
-  const textLayerElement = useTemplateRef<HTMLDivElement>('textLayer')
+  // Template ref names must not match another variable in this script: production
+  // builds bind ref="x" to the variable named x (the `textLayer` below broke this once).
+  const textLayerElement = useTemplateRef<HTMLDivElement>('textLayerElement')
 
   const loading = ref(true)
   const error = ref<string | null>(null)
@@ -331,7 +333,7 @@
         :style="{ '--total-scale-factor': String(scale), '--scale-round-x': '1px', '--scale-round-y': '1px' }"
       >
         <canvas ref="canvas" aria-label="PDF page" role="img" />
-        <div ref="textLayer" class="textLayer" />
+        <div ref="textLayerElement" class="textLayer" />
       </div>
     </div>
   </div>
